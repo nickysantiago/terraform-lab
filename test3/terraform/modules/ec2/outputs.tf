@@ -1,0 +1,30 @@
+# ============================================================
+# MODULE: ec2 - Outputs
+# Values exposed to whoever calls this module.
+# Referenced as module.ec2.<output_name>
+# ============================================================
+
+output "instance_id" {
+  description = "ID of the EC2 instance"
+  value       = aws_instance.this.id
+}
+
+output "instance_public_ip" {
+  description = "Public IP address of the EC2 instance"
+  value       = aws_instance.this.public_ip
+}
+
+output "instance_public_dns" {
+  description = "Public DNS name of the EC2 instance"
+  value       = aws_instance.this.public_dns
+}
+
+output "instance_private_ip" {
+  description = "Private IP address of the EC2 instance"
+  value       = aws_instance.this.private_ip
+}
+
+output "security_group_id" {
+  description = "ID of the instance security group"
+  value       = aws_security_group.instance.id
+}
