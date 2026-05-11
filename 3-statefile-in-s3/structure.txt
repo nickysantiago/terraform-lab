@@ -1,0 +1,28 @@
+terraform/
+|── bootstrap/                   ← Run ONCE manually, local state
+│   ├── main.tf                  ← Creates S3 + DynamoDB
+│   ├── outputs.tf
+│   └── versions.tf
+|
+├── modules/
+│   ├── vpc/
+│   │   ├── main.tf        VPC, IGW, subnet, route table, association
+│   │   ├── variables.tf   environment, vpc_cidr, subnet_cidr, az, tags
+│   │   ├── outputs.tf     vpc_id, subnet_id, igw_id, route_table_id
+│   │   └── versions.tf    provider requirements (no provider block)
+│   │
+│   └── ec2/
+│       ├── main.tf        AMI lookup, security group, EC2 instance
+│       ├── variables.tf   vpc_id, subnet_id, instance_type, name, etc.
+│       ├── outputs.tf     instance_id, public_ip, private_ip, sg_id
+│       └── versions.tf    provider requirements
+│
+└── environments/
+    └── dev/
+        └── us-east-1/
+            ├── main.tf         Calls both modules, wires outputs to inputs
+            ├── variables.tf    Declares all variables
+            ├── outputs.tf      Surfaces values after apply
+            ├── backend.tf      S3 remote state config (commented out for now)
+            ├── versions.tf     Provider block with default_tags
+            └── terraform.tfvars  Actual values for dev
