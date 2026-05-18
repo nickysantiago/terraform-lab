@@ -15,8 +15,6 @@
 #   Your state will remain in terraform.tfstate locally.
 # ============================================================
 
-# Uncomment this block when you have an S3 bucket and DynamoDB table ready.
-
  terraform {
    backend "s3" {
      bucket         = "terraform-state-259563981482"
