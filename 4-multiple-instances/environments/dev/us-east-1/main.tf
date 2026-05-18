@@ -26,6 +26,8 @@ module "vpc" {
 # This is the dependency chain in action - ec2 cannot run
 # until vpc has completed and produced its outputs.
 module "ec2" {
+  depends_on = [module.vpc]
+
   source = "../../../modules/ec2"
 
   environment   = var.environment
@@ -40,6 +42,8 @@ module "ec2" {
 }
 
 module "ec2_2nd" {
+  depends_on = [module.vpc]
+
   source = "../../../modules/ec2"
 
   environment   = var.environment
@@ -54,6 +58,8 @@ module "ec2_2nd" {
 }
 
 module "ec2_3rd" {
+  depends_on = [module.vpc]
+  
   source = "../../../modules/ec2"
 
   environment   = var.environment
