@@ -22,36 +22,6 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-# Security Group
-# Attached to the VPC passed in via variable.
-# This is why vpc_id must be an input - the security group
-# must live in the same VPC as the instance.
-resource "aws_security_group" "instance" {
-  name        = "${var.environment}-${var.instance_name}-sg"
-  description = "Security group for ${var.instance_name}"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "SSH access"
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound"
-  }
-
-  tags = merge(var.tags, {
-    Name = "${var.environment}-${var.instance_name}-sg"
-  })
-}
-
 # EC2 Instance
 # Placed in the subnet passed in via variable.
 # The subnet determines the AZ and whether it gets a public IP.

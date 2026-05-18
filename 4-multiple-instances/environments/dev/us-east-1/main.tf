@@ -33,10 +33,7 @@ module "ec2" {
   instance_type = var.instance_type
   key_pair_name = var.key_pair_name
 
-  # These values flow from the vpc module outputs into ec2 inputs.
-  # Terraform automatically understands this creates a dependency:
-  # vpc module must complete before ec2 module begins.
-  vpc_id    = module.vpc.vpc_id
+  security_group_ids = [module.vpc.instance_security_group_id]
   subnet_id = module.vpc.public_subnet_id
 
   tags = local.common_tags
@@ -50,10 +47,7 @@ module "ec2_2nd" {
   instance_type = var.instance_type
   key_pair_name = var.key_pair_name
 
-  # These values flow from the vpc module outputs into ec2 inputs.
-  # Terraform automatically understands this creates a dependency:
-  # vpc module must complete before ec2 module begins.
-  vpc_id    = module.vpc.vpc_id
+  security_group_ids = [module.vpc.instance_security_group_id]
   subnet_id = module.vpc.public_subnet_id
 
   tags = local.common_tags
@@ -67,10 +61,7 @@ module "ec2_3rd" {
   instance_type = var.instance_type
   key_pair_name = var.key_pair_name
 
-  # These values flow from the vpc module outputs into ec2 inputs.
-  # Terraform automatically understands this creates a dependency:
-  # vpc module must complete before ec2 module begins.
-  vpc_id    = module.vpc.vpc_id
+  security_group_ids = [module.vpc.instance_security_group_id]
   subnet_id = module.vpc.public_subnet_id
 
   tags = local.common_tags

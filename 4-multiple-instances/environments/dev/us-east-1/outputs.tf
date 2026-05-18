@@ -43,11 +43,6 @@ output "instance_private_ip" {
   value       = module.ec2.instance_private_ip
 }
 
-output "security_group_id" {
-  description = "ID of the instance security group"
-  value       = module.ec2.security_group_id
-}
-
 # 2nd EC2 instance
 output "instance_2_id" {
   description = "EC2 instance 2 ID"
@@ -69,11 +64,6 @@ output "instance_2_private_ip" {
   value       = module.ec2_2nd.instance_private_ip
 }
 
-output "instance_2_security_group_id" {
-  description = "Security group ID for instance 2"
-  value       = module.ec2.security_group_id
-}
-
 # 3rd EC2 instance
 output "instance_3_id" {
   description = "EC2 instance 2 ID"
@@ -93,11 +83,6 @@ output "instance_3_public_dns" {
 output "instance_3_private_ip" {
   description = "Private IP address of instance 2"
   value       = module.ec2_3rd.instance_private_ip
-}
-
-output "instance_3_security_group_id" {
-  description = "Security group ID for instance 2"
-  value       = module.ec2.security_group_id
 }
 
 # ---- Convenience Output ----

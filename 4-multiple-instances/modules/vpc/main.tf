@@ -62,3 +62,32 @@ resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.public.id
   route_table_id = aws_route_table.public.id
 }
+
+# Shared Security Group
+# Lives in the VPC module because it's a network-level resource.
+# All EC2 instances in this VPC use this single security group.
+resource "aws_security_group" "instances" {
+  name        = "${var.environment}-instances-sg"
+  description = "Shared security group for all instances"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "SSH access"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound"
+  }
+
+  tags = merge(var.tags, {
+    Name = "${var.environment}-instances-sg"
+  })
+}

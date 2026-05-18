@@ -18,13 +18,9 @@ variable "instance_type" {
   default     = "t2.micro"
 }
 
-# These two variables come from the VPC module outputs.
-# The ec2 module has no knowledge of how the VPC was created -
-# it just needs the IDs to place resources in the right location.
-
-variable "vpc_id" {
-  description = "ID of the VPC to place the security group in. Use module.vpc.vpc_id"
-  type        = string
+variable "security_group_ids" {
+  description = "List of security group IDs to attach. Pass module.vpc.instance_security_group_id"
+  type        = list(string)
 }
 
 variable "subnet_id" {

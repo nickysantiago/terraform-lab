@@ -33,3 +33,8 @@ output "route_table_id" {
   description = "ID of the public route table"
   value       = aws_route_table.public.id
 }
+
+output "instance_security_group_id" {
+  description = "Shared security group ID for all instances in this VPC"
+  value       = aws_security_group.instances.id
+}
