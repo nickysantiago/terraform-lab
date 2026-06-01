@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'terraform-agent' }
 
     environment {
         // AWS credentials stored in Jenkins credentials store
