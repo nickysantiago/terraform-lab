@@ -167,8 +167,13 @@ pipeline {
 
     post {
         always {
-            // Clean up workspace
-            cleanWs()
+            script {
+                try {
+                    cleanWs()
+                } catch (e) {
+                    echo "Workspace cleanup skipped: ${e.message}"
+                }
+            }
         }
         success {
             echo "✅ Terraform pipeline completed successfully!"
