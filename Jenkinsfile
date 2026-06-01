@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // AWS credentials stored in Jenkins credentials store
-        AWS_CREDENTIALS       = credentials('aws-terraform-again')
+        AWS_CREDENTIALS       = credentials('aws-terraform-iac')
         AWS_ACCESS_KEY_ID     = "${AWS_CREDENTIALS_USR}"
         AWS_SECRET_ACCESS_KEY = "${AWS_CREDENTIALS_PSW}"
         
