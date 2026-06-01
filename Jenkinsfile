@@ -50,10 +50,6 @@ pipeline {
                         terraform init \
                             -input=false \
                             -reconfigure
-                        
-                        echo "Selecting workspace: ${TF_WORKSPACE}"
-                        terraform workspace select ${TF_WORKSPACE} || \
-                        terraform workspace new ${TF_WORKSPACE}
                     '''
                     }
                 }
