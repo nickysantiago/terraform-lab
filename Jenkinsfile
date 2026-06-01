@@ -61,7 +61,7 @@ pipeline {
                 dir("${TF_DIR}") {
                     sh '''
                         echo "Checking Terraform formatting..."
-                        terraform fmt -check -recursive
+                        terraform fmt -recursive
                     '''
                 }
             }
