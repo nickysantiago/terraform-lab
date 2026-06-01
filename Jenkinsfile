@@ -2,10 +2,6 @@ pipeline {
     agent { label 'terraform-agent' }
 
     environment {
-        // AWS credentials stored in Jenkins credentials store
-        AWS_CREDENTIALS       = credentials('aws-terraform-iac')
-        AWS_ACCESS_KEY_ID     = "${env.AWS_CREDENTIALS_USR}"
-        AWS_SECRET_ACCESS_KEY = "${env.AWS_CREDENTIALS_PSW}"
         
         AWS_DEFAULT_REGION    = 'us-east-1'
 
@@ -17,7 +13,6 @@ pipeline {
          i.e. 4-multiple-instances/environments/dev/us-east-1, 
          2-vpc-and-instance, etc.
         */
-
         TF_DIR                = '5-cloudfront-s3' 
     }
 
@@ -46,23 +41,6 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
-            steps {
-                dir("${TF_DIR}") {
-                    sh '''
-                        echo "Initializing Terraform..."
-                        terraform init \
-                            -input=false \
-                            -reconfigure
-                        
-                        echo "Selecting workspace: ${TF_WORKSPACE}"
-                        terraform workspace select ${TF_WORKSPACE} || \
-                        terraform workspace new ${TF_WORKSPACE}
-                    '''
-                }
-            }
-        }
-
         stage('Terraform Format Check') {
             steps {
                 dir("${TF_DIR}") {
@@ -85,9 +63,29 @@ pipeline {
             }
         }
 
+        stage('Terraform Init') {
+            steps {
+                withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-iac']]){
+                    dir("${TF_DIR}") {
+                    sh '''
+                        echo "Initializing Terraform..."
+                        terraform init \
+                            -input=false \
+                            -reconfigure
+                        
+                        echo "Selecting workspace: ${TF_WORKSPACE}"
+                        terraform workspace select ${TF_WORKSPACE} || \
+                        terraform workspace new ${TF_WORKSPACE}
+                    '''
+                    }
+                }
+            }
+        }
+
         stage('Terraform Plan') {
             steps {
-                dir("${TF_DIR}") {
+                withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-iac']]){
+                    dir("${TF_DIR}") {
                     sh '''
                         echo "Running Terraform plan..."
                         terraform plan \
@@ -110,6 +108,7 @@ pipeline {
 
                     // Archive the plan for review
                     archiveArtifacts artifacts: 'tfplan.txt', fingerprint: true
+                    }
                 }
             }
         }
@@ -143,7 +142,8 @@ pipeline {
                 }
             }
             steps {
-                dir("${TF_DIR}") {
+                withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-iac']]){
+                    dir("${TF_DIR}") {
                     sh '''
                         echo "Applying Terraform plan..."
                         terraform apply \
@@ -151,6 +151,7 @@ pipeline {
                             -auto-approve \
                             tfplan
                     '''
+                    }
                 }
             }
         }
