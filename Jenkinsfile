@@ -41,6 +41,25 @@ pipeline {
             }
         }
 
+        stage('Terraform Init') {
+            steps {
+                withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-iac']]){
+                    dir("${TF_DIR}") {
+                    sh '''
+                        echo "Initializing Terraform..."
+                        terraform init \
+                            -input=false \
+                            -reconfigure
+                        
+                        echo "Selecting workspace: ${TF_WORKSPACE}"
+                        terraform workspace select ${TF_WORKSPACE} || \
+                        terraform workspace new ${TF_WORKSPACE}
+                    '''
+                    }
+                }
+            }
+        }
+
         stage('Terraform Format Check') {
             steps {
                 dir("${TF_DIR}") {
@@ -59,25 +78,6 @@ pipeline {
                         echo "Validating Terraform configuration..."
                         terraform validate
                     '''
-                }
-            }
-        }
-
-        stage('Terraform Init') {
-            steps {
-                withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-iac']]){
-                    dir("${TF_DIR}") {
-                    sh '''
-                        echo "Initializing Terraform..."
-                        terraform init \
-                            -input=false \
-                            -reconfigure
-                        
-                        echo "Selecting workspace: ${TF_WORKSPACE}"
-                        terraform workspace select ${TF_WORKSPACE} || \
-                        terraform workspace new ${TF_WORKSPACE}
-                    '''
-                    }
                 }
             }
         }
@@ -158,11 +158,13 @@ pipeline {
 
         stage('Terraform Output') {
             steps {
-                dir("${TF_DIR}") {
+                withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-iac']]){
+                    dir("${TF_DIR}") {
                     sh '''
                         echo "Terraform Outputs:"
                         terraform output
                     '''
+                    }
                 }
             }
         }
