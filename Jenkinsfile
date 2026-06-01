@@ -3,19 +3,24 @@ pipeline {
 
     environment {
         // AWS credentials stored in Jenkins credentials store
-        AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         AWS_DEFAULT_REGION    = 'us-east-1'
 
         // Terraform settings
         TF_VERSION            = '1.6.0'
         TF_WORKSPACE          = 'default'
-        TF_DIR                = 'terraform'         // Directory where your .tf files live
-        TF_VAR_FILE           = 'environments/dev.tfvars'
+
+        /* Sub directory where .tf files are located. CHANGE according to the lab
+         i.e. 4-multiple-instances/environments/dev/us-east-1, 
+         2-vpc-and-instance, etc.
+        */
+
+        TF_DIR                = '5-cloudfront-s3' 
     }
 
     triggers {
-        pollSCM('* * * * *')  // Poll every minute
+        githubPush()
     }
 
     options {
@@ -85,7 +90,6 @@ pipeline {
                         echo "Running Terraform plan..."
                         terraform plan \
                             -input=false \
-                            -var-file=${TF_VAR_FILE} \
                             -out=tfplan \
                             -detailed-exitcode || exit_code=$?
 
@@ -163,10 +167,7 @@ pipeline {
 
     post {
         always {
-            // Clean up sensitive plan files
-            dir("${TF_DIR}") {
-                sh 'rm -f tfplan'
-            }
+            // Clean up workspace
             cleanWs()
         }
         success {
