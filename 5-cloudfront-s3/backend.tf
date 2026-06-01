@@ -15,7 +15,7 @@
 #   Your state will remain in terraform.tfstate locally.
 # ============================================================
 
- terraform {
+terraform {
    backend "s3" {
      bucket         = "terraform-state-259563981482"
      key            = "5/dev/us-east-1/terraform.tfstate"
