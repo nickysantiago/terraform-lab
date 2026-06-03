@@ -117,18 +117,20 @@ pipeline {
 
         stage('Plan Review') {
             steps {
+                // Only trigger stage when there are infrastructure changes
                 when {
                     expression { env.TF_HAS_CHANGES == 'true' }
                 }
-                script {
+                steps {
                     dir("${TF_DIR}") {
                         // Display plan summary in console
-                        sh "cat tfplan.txt"
+                        sh 'cat tfplan.txt'
 
                         /* Again removing for now. Will re-evaluate once in multi-branch project
 
                         // Only require approval on main/production branches
                         if (env.BRANCH_NAME == 'main') {
+                            // *** We CAN REMOVE the input block below if we wanted a manuel confirmation step ***
                             input(
                                 message: 'Review the Terraform plan above. Proceed with Apply?',
                                 ok: 'Apply',
@@ -152,6 +154,11 @@ pipeline {
                     expression { env.BRANCH_NAME.startsWith('release/') }
                 }
             } */
+
+            // Instead for now only trigger when there are changes in the infrastructure
+            when {
+                expression { env.TF_HAS_CHANGES == 'true' }
+            }
             
             steps {
                 withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-iac']]){
