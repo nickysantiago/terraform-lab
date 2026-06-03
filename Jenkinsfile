@@ -87,15 +87,23 @@ pipeline {
                         terraform plan \
                             -input=false \
                             -out=tfplan \
-                            -detailed-exitcode || exit_code=$?
+                            -detailed-exitcode 
+                        
+                        exit_code=$?
+                        set -euo pipefail
+
 
                         # Exit codes:
                         # 0 = No changes
                         # 1 = Error
                         # 2 = Changes present
-                        if [ "${exit_code}" -eq 1 ]; then
+                        if [ $exit_code -eq 0 ]; then
+                            echo "No changes detected."
+                        elif [ $exit_code -eq 1 ]; then
                             echo "Terraform plan failed!"
                             exit 1
+                        elif [ $exit_code -eq 2 ]; then
+                            echo "Changes detected. Proceeding to review." 
                         fi
                     '''
 
@@ -112,18 +120,20 @@ pipeline {
         stage('Plan Review') {
             steps {
                 script {
-                    // Display plan summary in console
-                    sh "cat ${TF_DIR}/tfplan.txt"
+                    dir("${TF_DIR}") {
+                        // Display plan summary in console
+                        sh "cat tfplan.txt"
 
-                    // Only require approval on main/production branches
-                    if (env.BRANCH_NAME == 'main') {
-                        input(
-                            message: 'Review the Terraform plan above. Proceed with Apply?',
-                            ok: 'Apply',
-                            submitter: 'admin,jenkins-approvers'  // Restrict who can approve
-                        )
-                    } else {
-                        echo "Non-production branch - skipping manual approval"
+                        // Only require approval on main/production branches
+                        if (env.BRANCH_NAME == 'main') {
+                            input(
+                                message: 'Review the Terraform plan above. Proceed with Apply?',
+                                ok: 'Apply',
+                                submitter: 'admin,jenkins-approvers'  // Restrict who can approve
+                            )
+                        } else {
+                            echo "Non-production branch - skipping manual approval"
+                        }
                     }
                 }
             }
