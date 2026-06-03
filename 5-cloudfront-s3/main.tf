@@ -9,7 +9,7 @@ resource "aws_s3_bucket" "terraform_lab5" {
 
   tags = {
     Name      = "Terraform Lab 5"
-    Purpose   = "Server as the backend for Lab 5's state file"
+    Purpose   = "Serves as the backend to store the statafile"
     ManagedBy = "terraform"
   }
 }
