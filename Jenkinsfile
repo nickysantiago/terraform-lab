@@ -82,42 +82,34 @@ pipeline {
             steps {
                 withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-iac']]){
                     dir("${TF_DIR}") {
-                    sh '''#!/usr/bin/env bash
+                        script {
+                            // returnStatus lets Groovy read the exit code instead of
+                            // Jenkins failing the step on non-zero.
+                            def planStatus = sh(
+                                returnStatus: true,
+                                script: '''#!/usr/bin/env bash
+                                    set -uo pipefail
+                                    echo "Running Terraform plan..."
+                                    terraform plan \
+                                        -input=false \
+                                        -out=tfplan \
+                                        -detailed-exitcode
+                                '''
+                            )
 
-                        # -u: Exit if you try to use an uninitialized variable
-                        #-o pipefail: If any command in a pipeline fails, the whole pipeline is considered a failure.
-                        set -uo pipefail 
+                            // 0 = no changes, 1 = error, 2 = changes
+                            if (planStatus == 1) {
+                                error("Terraform plan failed!")
+                            }
+                            env.TF_HAS_CHANGES = (planStatus == 2).toString()  // "true" | "false"
+                            echo (planStatus == 2 ? "Changes detected." : "No changes detected.")
+                        }
 
-                        echo "Running Terraform plan..."
-                        
-                        
-                        terraform plan \
-                            -input=false \
-                            -out=tfplan \
-                            -detailed-exitcode 
-                        
-                        exit_code=$?
+                        // Save plan output as readable text for review
+                        sh 'terraform show -no-color tfplan > tfplan.txt'
 
-
-                        # Exit codes:
-                        # 0 = No changes
-                        # 1 = Error
-                        # 2 = Changes present
-                        if [ $exit_code -eq 0 ]; then
-                            echo "No changes detected."
-                        elif [ $exit_code -eq 1 ]; then
-                            echo "Terraform plan failed!"
-                            exit 1
-                        elif [ $exit_code -eq 2 ]; then
-                            echo "Changes detected. Proceeding to review." 
-                        fi
-                    '''
-
-                    // Save plan output as readable text for review
-                    sh 'terraform show -no-color tfplan > tfplan.txt'
-
-                    // Archive the plan for review
-                    archiveArtifacts artifacts: 'tfplan.txt', fingerprint: true
+                        // Archive the plan for review
+                        archiveArtifacts artifacts: 'tfplan.txt', fingerprint: true
                     }
                 }
             }
@@ -130,6 +122,8 @@ pipeline {
                         // Display plan summary in console
                         sh "cat tfplan.txt"
 
+                        /* Again removing for now. Will re-evaluate once in multi-branch project
+
                         // Only require approval on main/production branches
                         if (env.BRANCH_NAME == 'main') {
                             input(
@@ -140,6 +134,7 @@ pipeline {
                         } else {
                             echo "Non-production branch - skipping manual approval"
                         }
+                        */
                     }
                 }
             }
