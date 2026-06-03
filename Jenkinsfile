@@ -146,13 +146,15 @@ pipeline {
         }
 
         stage('Terraform Apply') {
-            when {
+            // Commenting out. This needs a multi branch pipeline to work. For now we will use a single branch pipeline. 
+            /* when {
                 anyOf {
                     branch 'main'
                     branch 'develop'
                     expression { env.BRANCH_NAME.startsWith('release/') }
                 }
-            }
+            } */
+            
             steps {
                 withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-iac']]){
                     dir("${TF_DIR}") {
