@@ -117,6 +117,9 @@ pipeline {
 
         stage('Plan Review') {
             steps {
+                when {
+                    expression { env.TF_HAS_CHANGES == 'true' }
+                }
                 script {
                     dir("${TF_DIR}") {
                         // Display plan summary in console
