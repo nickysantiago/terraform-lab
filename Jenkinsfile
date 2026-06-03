@@ -82,15 +82,21 @@ pipeline {
             steps {
                 withCredentials([[ $class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-iac']]){
                     dir("${TF_DIR}") {
-                    sh '''
+                    sh '''#!/usr/bin/env bash
+
+                        # -u: Exit if you try to use an uninitialized variable
+                        #-o pipefail: If any command in a pipeline fails, the whole pipeline is considered a failure.
+                        set -uo pipefail 
+
                         echo "Running Terraform plan..."
+                        
+                        
                         terraform plan \
                             -input=false \
                             -out=tfplan \
                             -detailed-exitcode 
                         
                         exit_code=$?
-                        set -euo pipefail
 
 
                         # Exit codes:
