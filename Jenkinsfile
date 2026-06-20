@@ -120,13 +120,23 @@ pipeline {
             when {
                 expression { env.TF_HAS_CHANGES == 'true' }
             }
+            options {
+                timeout(time: 30, unit: 'MINUTES')  // Times out after 30 minutes
+            }
             steps {
                 dir("${TF_DIR}") {
                     // Display plan summary in console
                     sh 'cat tfplan.txt'
 
-                    // Again removing for now. Will re-evaluate once in multi-branch project
+                    // Manual Approval for Single Branch Job
+                    input(
+                        message: 'Review the Terraform plan above. Proceed with Apply?',
+                        ok: 'Apply',
+                        submitter: 'admin,nsantiago'
+                    )
 
+                    // Manual Approval for Multibranch job
+                    /*
                     // Only require approval on main/production branches
                     if (env.BRANCH_NAME == 'main') {
                         // *** We CAN REMOVE the input block below if we wanted a manuel confirmation step ***
@@ -138,7 +148,7 @@ pipeline {
                     } else {
                         echo "Non-production branch - skipping manual approval"
                     }
-                    
+                    */
                 }
             }  
         }
