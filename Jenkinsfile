@@ -125,7 +125,7 @@ pipeline {
                     // Display plan summary in console
                     sh 'cat tfplan.txt'
 
-                    /* Again removing for now. Will re-evaluate once in multi-branch project
+                    // Again removing for now. Will re-evaluate once in multi-branch project
 
                     // Only require approval on main/production branches
                     if (env.BRANCH_NAME == 'main') {
@@ -133,12 +133,12 @@ pipeline {
                         input(
                             message: 'Review the Terraform plan above. Proceed with Apply?',
                             ok: 'Apply',
-                            submitter: 'admin,jenkins-approvers'  // Restrict who can approve
+                            submitter: 'admin,nsantiago'  // Restrict who can approve
                         )
                     } else {
                         echo "Non-production branch - skipping manual approval"
                     }
-                    */
+                    
                 }
             }  
         }
